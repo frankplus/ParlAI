@@ -20,9 +20,9 @@ from parlai.utils.io import PathManager
 
 RESOURCES = [
     DownloadableFile(
-        'https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/xml/en.zip',
+        'https://opus.nlpl.eu/download.php?f=OpenSubtitles/v2018/xml/it.zip',
         'OpenSubtitles2018.zip',
-        '917af90fcaa8b0ebb3d59d9f8d205f304f31bf92cbf15aa6e9ee030f6691755e',
+        '1e2d54324bded4bf8748f3c97bbd23d49b6e90a1009df551123406d180bd90a0',
     )
 ]
 
@@ -305,9 +305,9 @@ def create_fb_format(inpath, outpath, use_history):
         for i, s in enumerate(pool.imap(processor, tqdm.tqdm(movie_dirs.items()))):
             handle = ftrain
             # TODO: Shall we use smaller valid/test sets? Even 10% is A LOT here
-            if i % 10 == 0:
+            if i % 200 == 0:
                 handle = ftest
-            if i % 10 == 1:
+            if i % 200 == 1:
                 handle = fvalid
             handle.write(s)
 
@@ -334,7 +334,7 @@ def build(datapath, use_history):
             build_data.remove_dir(dpath)
         build_data.make_dir(dpath)
 
-        untar_path = os.path.join(dpath, 'OpenSubtitles', 'xml', 'en')
+        untar_path = os.path.join(dpath, 'OpenSubtitles', 'xml', 'it')
 
         if len(glob.glob(untar_path + '/*/*/*.xml')) != NUM_SUBTITLES_FILES:
             # Download the data.
