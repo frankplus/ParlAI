@@ -190,3 +190,31 @@ class V2018NoHistoryTask10kTeacher(Task10kTeacher):
 # Defaults to full teacher (all possible examples)
 class DefaultTeacher(V2018Teacher):
     pass
+
+
+class CustomTeacher(HalfTeacher):
+
+    def setup_data(self, path):
+        cnt = 0
+        for entry, new in super().setup_data(path):
+            if len(entry) > 1 and entry[1]:
+                # focus on examples with targets for small set
+                yield entry, new
+            cnt += 1
+            if cnt >= self.n_samples:
+                break
+
+    def __init__(self, opt, shared=None):
+
+        n_samples_dict = {
+            'train': 50000,
+            'valid': 500,
+            'test': 500,
+        }
+
+        self.n_samples = 100000
+        for key, n in n_samples_dict.items():
+            if key in opt['datatype']:
+                self.n_samples = n_samples_dict[key]
+
+        super(CustomTeacher, self).__init__(opt, shared, '2018', True)
