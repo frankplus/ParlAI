@@ -207,12 +207,12 @@ class CustomTeacher(HalfTeacher):
     def __init__(self, opt, shared=None):
 
         n_samples_dict = {
-            'train': 50000,
-            'valid': 500,
-            'test': 500,
+            'train': 50000000,
+            'valid': 3000,
+            'test': 3000,
         }
 
-        self.n_samples = 100000
+        self.n_samples = n_samples_dict['train']
         for key, n in n_samples_dict.items():
             if key in opt['datatype']:
                 self.n_samples = n
