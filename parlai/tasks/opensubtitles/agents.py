@@ -215,6 +215,6 @@ class CustomTeacher(HalfTeacher):
         self.n_samples = 100000
         for key, n in n_samples_dict.items():
             if key in opt['datatype']:
-                self.n_samples = n_samples_dict[key]
+                self.n_samples = n
 
         super(CustomTeacher, self).__init__(opt, shared, '2018', True)
