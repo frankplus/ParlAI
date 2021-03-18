@@ -207,7 +207,7 @@ class CustomTeacher(HalfTeacher):
     def __init__(self, opt, shared=None):
 
         n_samples_dict = {
-            'train': 50000000,
+            'train': 10000000,
             'valid': 3000,
             'test': 3000,
         }
