@@ -208,8 +208,8 @@ class CustomTeacher(HalfTeacher):
 
         n_samples_dict = {
             'train': 10000000,
-            'valid': 3000,
-            'test': 3000,
+            'valid': 10000,
+            'test': 100000,
         }
 
         self.n_samples = n_samples_dict['train']
