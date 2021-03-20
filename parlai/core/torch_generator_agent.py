@@ -419,7 +419,7 @@ class TorchGeneratorAgent(TorchAgent, ABC):
         )
         agent.add_argument(
             '--inference',
-            choices={'beam', 'greedy', 'topk', 'nucleus', 'delayedbeam'},
+            choices={'beam', 'greedy', 'topk', 'nucleus', 'delayedbeam', 'random'},
             default='greedy',
             help='Generation algorithm',
         )
@@ -985,6 +985,18 @@ class TorchGeneratorAgent(TorchAgent, ABC):
                 eos_token=self.END_IDX,
                 device=device,
             )
+        elif method == 'random':
+            return RandomSampling(
+                beam_size,
+                min_length=0,
+                block_ngram=self.beam_block_ngram,
+                context_block_ngram=self.beam_context_block_ngram,
+                length_penalty=self.opt.get('beam_length_penalty', 0.65),
+                padding_token=self.NULL_IDX,
+                bos_token=self.START_IDX,
+                eos_token=self.END_IDX,
+                device=device,
+            )
         else:
             raise ValueError(f"Can't use inference method {method}")
 
@@ -1054,7 +1066,7 @@ class TorchGeneratorAgent(TorchAgent, ABC):
         """
         Generate an output with beam search.
 
-        Depending on the options, this may perform greedy/topk/nucleus generation.
+        Depending on the options, this may perform greedy/topk/nucleus/random generation.
 
         :param Batch batch:
             Batch structure with input and labels
@@ -1668,4 +1680,18 @@ class NucleusSampling(TreeSearch):
         # Convert back to logspace.
         scores = sprobs[hyp_ids, choices].log()
         best_scores = prior_scores.expand_as(scores) + scores
+        return (hyp_ids, tok_ids, best_scores)
+
+class RandomSampling(TreeSearch):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.beam_size != 1:
+            raise ValueError('Random sampling can only be run with beam size 1.')
+
+    def select_paths(self, logprobs, prior_scores, current_length):
+        probs = torch.softmax(logprobs, dim=-1)
+        tok_ids = torch.multinomial(probs, 1)[:, 0]
+        hyp_ids = torch.arange(logprobs.size(0)).to(logprobs.device)
+        tok_scores = logprobs[hyp_ids, tok_ids]
+        best_scores = prior_scores + tok_scores
         return (hyp_ids, tok_ids, best_scores)
